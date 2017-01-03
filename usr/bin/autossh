@@ -1,0 +1,20 @@
+#!/usr/bin/env expect 
+#trap sigwinch spawned
+trap {
+ set rows [stty rows]
+ set cols [stty columns]
+ stty rows $rows columns $cols < $spawn_out(slave,name)
+} WINCH
+
+set server [lindex $argv 0]
+set user [lindex $argv 1]
+set passwd [lindex $argv 2]
+spawn ssh $user@$server
+if {$passwd != "nopassword!!!" } {
+	expect -re "password:"
+	send "${passwd}\r"
+}
+
+expect -re "$"
+# 给操作权还回给用户
+interact
